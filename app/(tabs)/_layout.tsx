@@ -1,19 +1,26 @@
-import { Tabs } from 'expo-router';
+import { Tabs, Redirect } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAuthStore } from '@/src/store/authStore';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const token = useAuthStore((state) => state.token);
+
+  // Proteger: si no hay token, redirigir al login
+  if (!token) {
+    return <Redirect href="/(auth)/login" />;
+  }
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].primary,
-        headerShown: true, // We want to show a title header for tabs
+        headerShown: true,
         headerStyle: {
           backgroundColor: Colors[colorScheme ?? 'light'].background,
         },
@@ -37,6 +44,20 @@ export default function TabLayout() {
         options={{
           title: 'Perfil',
           tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={24} color={color} />,
+        }}
+      />
+      {/* Ocultar debug.tsx del tab bar */}
+      <Tabs.Screen
+        name="debug"
+        options={{
+          href: null,
+        }}
+      />
+      {/* Ocultar home.tsx del tab bar */}
+      <Tabs.Screen
+        name="home"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

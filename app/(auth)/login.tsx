@@ -1,4 +1,4 @@
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { useState } from "react";
 import { 
     Alert, 
@@ -99,7 +99,10 @@ export default function LoginScreen() {
                     </View>
 
                     {/* Forgot Password */}
-                    <TouchableOpacity style={styles.forgotPasswordContainer}>
+                    <TouchableOpacity
+                        style={styles.forgotPasswordContainer}
+                        onPress={() => router.push("/(auth)/forgot-password")}
+                    >
                         <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
                     </TouchableOpacity>
 
@@ -117,15 +120,7 @@ export default function LoginScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Footer Section */}
-                <View style={styles.footerContainer}>
-                    <Text style={styles.footerText}>¿No tienes una cuenta? </Text>
-                    <Link href="/(auth)/register" asChild>
-                        <TouchableOpacity>
-                            <Text style={styles.registerText}>Regístrate</Text>
-                        </TouchableOpacity>
-                    </Link>
-                </View>
+
             </View>
         </KeyboardAvoidingView>
     );
@@ -215,19 +210,5 @@ const createStyles = (colors: any) => StyleSheet.create({
         fontWeight: 'bold',
         letterSpacing: 1,
     },
-    footerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 40,
-    },
-    footerText: {
-        color: colors.text,
-        fontSize: 15,
-    },
-    registerText: {
-        color: colors.primary,
-        fontSize: 15,
-        fontWeight: 'bold',
-    },
+
 });

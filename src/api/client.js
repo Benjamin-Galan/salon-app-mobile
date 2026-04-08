@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
+import { useLogStore } from "../store/logStore";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://72.61.5.146/api";
 
@@ -20,5 +21,25 @@ api.interceptors.request.use(
 
         return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+        useLogStore.getState().addLog('error', 'Axios Request Error', error);
+        return Promise.reject(error);
+    }
+);
+
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const logData = {
+            url: error.config?.url,
+            method: error.config?.method,
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message,
+        };
+
+        useLogStore.getState().addLog('error', 'API Error', logData);
+
+        return Promise.reject(error);
+    }
 );

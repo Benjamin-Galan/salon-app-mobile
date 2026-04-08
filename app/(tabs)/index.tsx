@@ -16,12 +16,19 @@ import {
     TextInput,
     TouchableOpacity,
     View,
-    Dimensions
+    Dimensions,
+    ActivityIndicator
 } from 'react-native';
 interface ApiResponse<T> {
     success: boolean;
     data?: T;
     message?: string;
+    pagination?: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 }
 
 export default function AppointmentsScreen() {
@@ -32,6 +39,11 @@ export default function AppointmentsScreen() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    
+    // Pagination States
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     // Scanner States
     const [permission, requestPermission] = useCameraPermissions();
@@ -39,21 +51,36 @@ export default function AppointmentsScreen() {
     const [scanned, setScanned] = useState(false);
     const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
 
-    const loadAppointments = async () => {
+    const loadAppointments = async (pageToLoad = 1, shouldRefresh = false) => {
         try {
-            setIsLoading(true)
-            const result = await getConfirmedAppointmentsRequest() as unknown as ApiResponse<Appointment[]>;
+            if (pageToLoad === 1 && !shouldRefresh) {
+                setIsLoading(true);
+            } else if (pageToLoad > 1) {
+                setIsLoadingMore(true);
+            }
 
-            // result is usually { success: true, data: [...] }
+            const result = await getConfirmedAppointmentsRequest(pageToLoad) as unknown as ApiResponse<Appointment[]>;
+
             if (result.success && result.data) {
-                setAppointments(result.data);
+                if (pageToLoad === 1) {
+                    setAppointments(result.data);
+                } else {
+                    setAppointments(prev => [...prev, ...(result.data || [])]);
+                }
+
+                if (result.pagination) {
+                    setHasMore(result.pagination.current_page < result.pagination.last_page);
+                    setPage(result.pagination.current_page);
+                } else {
+                    setHasMore(false);
+                }
             }
         } catch (error) {
             console.error("Error cargando citas:", error);
-            // Alert.alert("Error", "No se pudieron cargar las citas."); 
         } finally {
             setIsLoading(false);
             setIsRefreshing(false);
+            setIsLoadingMore(false);
         }
     };
 
@@ -63,7 +90,15 @@ export default function AppointmentsScreen() {
 
     const onRefresh = () => {
         setIsRefreshing(true);
-        loadAppointments();
+        setPage(1);
+        setHasMore(true);
+        loadAppointments(1, true);
+    };
+
+    const handleLoadMore = () => {
+        if (!isLoadingMore && hasMore && !isLoading) {
+            loadAppointments(page + 1);
+        }
     };
 
     // Filter appointments based on search query (by user name)
@@ -71,7 +106,8 @@ export default function AppointmentsScreen() {
         if (!appt.user || !appt.user.name) return false;
         return appt.user.name.toLowerCase().includes(searchQuery.toLowerCase());
     });
-
+    
+    // ... rest of functions like handleCheckIn ...
     const handleCheckIn = async (appt: Appointment) => {
         if (!permission) {
             // Camera permissions are still loading.
@@ -170,6 +206,15 @@ export default function AppointmentsScreen() {
         </View>
     );
 
+    const renderFooter = () => {
+        if (!isLoadingMore) return null;
+        return (
+            <View style={styles.footerLoader}>
+                <ActivityIndicator color={activeColors.primary} />
+            </View>
+        );
+    };
+
     const styles = createStyles(activeColors);
 
     return (
@@ -198,6 +243,9 @@ export default function AppointmentsScreen() {
                 contentContainerStyle={styles.listContainer}
                 refreshing={isRefreshing}
                 onRefresh={onRefresh}
+                onEndReached={handleLoadMore}
+                onEndReachedThreshold={0.5}
+                ListFooterComponent={renderFooter}
                 showsVerticalScrollIndicator={false}
             />
 
@@ -419,5 +467,9 @@ const createStyles = (colors: any) => StyleSheet.create({
         color: '#FFF',
         fontWeight: 'bold',
         fontSize: 16,
+    },
+    footerLoader: {
+        paddingVertical: Spacing.md,
+        alignItems: 'center',
     },
 });

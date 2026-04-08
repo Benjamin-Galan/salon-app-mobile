@@ -1,12 +1,13 @@
 import { api } from "../api/client";
 
 /**
- * Obtiene las citas confirmadas para el día de hoy (o según la lógica del backend)
- * @returns {Promise<Array>} Lista de citas
+ * Obtiene las citas confirmadas con paginación
+ * @param {number} page - El número de página a solicitar
+ * @returns {Promise<Object>} Respuesta con datos y metadatos de paginación
  */
-export const getConfirmedAppointmentsRequest = async () => {
+export const getConfirmedAppointmentsRequest = async (page = 1) => {
     try {
-        const response = await api.get('/appointments/confirmed');
+        const response = await api.get(`/appointments/confirmed?page=${page}`);
         return response.data;
     } catch (error) {
         if (error.response) {

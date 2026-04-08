@@ -18,9 +18,9 @@ export const loginRequest = async (email, password) => {
     }
 }
 
-export const registerRequest = async (data) => {
+export const forgotPasswordRequest = async (email) => {
     try {
-        const response = await api.post('/auth/register', data);
+        const response = await api.post('/auth/forgot-password', { email });
 
         return response.data
     } catch (error) {
@@ -28,7 +28,7 @@ export const registerRequest = async (data) => {
             throw error.response.data
         }
 
-        throw new Error("Error al registrarse")
+        throw new Error("Error al enviar el enlace de recuperación")
     }
 }
 
@@ -57,3 +57,4 @@ export const logoutRequest = async () => {
         throw new Error("Error al cerrar sesión");
     }
 }
+
