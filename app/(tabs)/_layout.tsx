@@ -10,6 +10,12 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const token = useAuthStore((state) => state.token);
+  const _hasHydrated = useAuthStore((state) => state._hasHydrated);
+
+  // Esperar a que la sesión se cargue desde el storage
+  if (!_hasHydrated) {
+    return null; // O un ActivityIndicator si lo prefieres
+  }
 
   // Proteger: si no hay token, redirigir al login
   if (!token) {
