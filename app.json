@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#F9D7D7",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -34,9 +34,9 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#F9D7D7",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#F9D7D7"
           }
         }
       ],
@@ -56,7 +56,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "1922ac48-1981-4560-ab24-21908f520e81"
+        "projectId": "5de56b79-4c8d-4bc7-8641-484bba1c59fd"
       }
     }
   }
